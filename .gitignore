@@ -10,6 +10,12 @@
 
 # production
 /build
+/dist/*
+/dist/
+/dist
+/.idea
+/.idea/*
+/.idea/
 
 # misc
 .DS_Store
