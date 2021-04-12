@@ -8,7 +8,6 @@ function Holder() {
         <img src={logo} className="App-logo" alt="logo" />
         <p>
           Очень странная страница но почему-то работает...
-            И коммитится
         </p>
       </header>
     </div>
