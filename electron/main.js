@@ -73,8 +73,11 @@ app.on('window-all-closed', () => {
 })
 
 ipcMain.on('asynchronous-message', (event, arg) => {
+    const date = new Date();
+    let pref = date.toLocaleDateString();
+    pref=pref.replaceAll('.','_')
     try {
-        fs.writeFileSync('projectname.eeproj', arg, 'utf-8');
+        fs.writeFileSync('save_'+pref+'.eeproj', arg, 'utf-8');
         event.reply('asynchronous-reply', 'saved')
     } catch (e) {
         alert('Failed to save the file !');
@@ -82,3 +85,7 @@ ipcMain.on('asynchronous-message', (event, arg) => {
     }
     console.log(arg)
 })
+
+function formatDate(date, format) {
+    //
+}
