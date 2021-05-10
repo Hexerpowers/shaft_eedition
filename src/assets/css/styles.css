@@ -1,6 +1,15 @@
 body{
     overflow: hidden;
 }
+.table td, .table th {
+    padding: 0;
+}
+canvas{
+
+    width:300px !important;
+    height:175px !important;
+
+}
 .flex{
     display: flex;
 }
@@ -13,6 +22,7 @@ body{
     background: #d2d2d2;
     height: 100vh;
     width: 150px;
+    min-width: 150px;
     margin-top: 40px;
 }
 
@@ -37,11 +47,113 @@ body{
 }
 
 .nav-tabs{
-    margin: 2em;
+    margin: 1.6em 0.5em;
     border-bottom: 0 !important;
 }
 
 .h1-h1{
-    margin: 30px 100px;
+    margin: 20px 100px 20px 100px;
     font-size: 3rem;
+}
+
+.scheme-tab{
+    margin: 20px 0;
+}
+
+.moments-tab{
+    margin: 20px 0;
+    width: 85vw;
+}
+
+.const-tab{
+    margin: 20px 0;
+}
+
+.h2-h2{
+    font-size: 1.5rem;
+}
+
+.scheme-img{
+    margin-left: 3vw;
+    margin-top: 2vh;
+}
+.moment-img{
+    margin-left: 0.6vw;
+    margin-top: 0.8vh;
+}
+
+.scheme-img-self{
+    width: 59vw;
+}
+.moments-img-self{
+    width: 55vw;
+}
+
+.igt-sch-1{
+    width:185px;
+}
+
+.moment-ctr{
+    justify-content: space-between;
+    height: 460px;
+}
+
+.col-wd-1{
+    width: 5vw;
+    margin: 0 7px !important;
+    padding: 6px 1px;
+}
+
+.col-hd-wd-1{
+    width: 6vw;
+    padding: 10px 15px !important;
+}
+
+.col-hd-wd-0{
+    width: 1vw;
+    padding: 9px 13px !important;
+}
+
+.table-moments{
+    width: 30vw;
+    margin-bottom: 4px;
+}
+
+.col-dm-1{
+    font-size: 1.5rem;
+    padding: 20px 13px;
+}
+
+.col-dm-2{
+    font-size: 1.2rem;
+    padding: 20px 13px;
+}
+
+.col-hd-wd-2{
+    padding: 7px 150px !important;
+}
+
+.col-hd-wd-3{
+    width: 6vw;
+    padding: 18px 10px !important;
+}
+
+.sys-block-1{
+    height: 460px;
+}
+
+.sys-block-2{
+    margin-right: 1vw;
+}
+.sys-block-3{
+    min-width: 13vw;
+    margin-right: 10px;
+}
+
+.sys-block-4{
+    width:590px;
+}
+
+.calc-btn{
+    width: 150px;
 }
