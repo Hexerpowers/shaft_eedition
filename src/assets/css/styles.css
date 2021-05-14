@@ -4,12 +4,17 @@ body{
 .table td, .table th {
     padding: 0;
 }
-canvas{
+.mini_plot{
 
     width:300px !important;
     height:175px !important;
 
 }
+.full_plot{
+    margin: 6vh 14vw 7vh 2vw;
+}
+
+
 .flex{
     display: flex;
 }
@@ -52,7 +57,7 @@ canvas{
 }
 
 .h1-h1{
-    margin: 20px 100px 20px 100px;
+    margin: 50px 100px 46px 100px !important;
     font-size: 3rem;
 }
 
@@ -157,3 +162,24 @@ canvas{
 .calc-btn{
     width: 150px;
 }
+
+.sys-block-5{
+    overflow-x: scroll;
+    height: 95vh;
+}
+
+.logo_v2{
+    width: 82vw;
+    margin: 30px;
+}
+
+.table-check{
+
+}
+
+.col-hd-wd-4{
+    width: 3vw;
+    font-size: 1.3rem;
+    padding: 18px 10px !important;
+}
+

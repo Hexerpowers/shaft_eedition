@@ -2,7 +2,7 @@
   "name": "shaft",
   "version": "0.3.0",
   "main": "electron/main.js",
-  "productName": "Sassnoe app",
+  "productName": "Shaft E-edition",
   "author": {
     "name": "Акжигитов Артём",
     "email": "info@phport.tech",
@@ -11,9 +11,6 @@
   "homepage": "./",
   "dependencies": {
     "@popperjs/core": "^2.9.2",
-    "@testing-library/jest-dom": "^5.11.10",
-    "@testing-library/react": "^11.2.6",
-    "@testing-library/user-event": "^12.8.3",
     "bootstrap": "^4.5.0",
     "chart.js": "^3.2.1",
     "jquery": "^3.6.0",
@@ -22,8 +19,7 @@
     "react-dom": "^17.0.2",
     "react-motion": "^0.5.2",
     "react-scripts": "4.0.3",
-    "sweetalert2": "^10.16.2",
-    "web-vitals": "^1.1.1"
+    "sweetalert2": "^10.16.7"
   },
   "scripts": {
     "start": "set BROWSER=none && react-scripts start",

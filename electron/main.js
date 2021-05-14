@@ -60,9 +60,7 @@ app.whenReady().then(() => {
     });
     win.loadURL(startUrl);
     win.webContents.setFrameRate(60)
-    win.once('ready-to-show', () => {
-        win.show()
-    })
+    win.show()
 })
 
 const menu = Menu.buildFromTemplate(main_menu)
@@ -85,7 +83,3 @@ ipcMain.on('asynchronous-message', (event, arg) => {
     }
     console.log(arg)
 })
-
-function formatDate(date, format) {
-    //
-}
