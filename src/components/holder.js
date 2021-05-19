@@ -20,11 +20,11 @@ class Holder extends React.Component {
             slices: [2, 7, 4, 9],
             shaft_params: [
                 [
-                    200,
-                    200,
-                    400,
                     150,
-                    150
+                    200,
+                    350,
+                    150,
+                    100
                 ],
                 [
                     56,
@@ -39,48 +39,48 @@ class Holder extends React.Component {
                 [
                     0,
                     0,
-                    -140.5,
-                    -271,
-                    -251,
-                    -190.25,
-                    -176,
-                    -83.6,
+                    -100,
+                    -300,
+                    -250,
+                    -200,
+                    -150,
+                    -100,
                     0,
                     0
                 ],
                 [
                     0,
-                    -140.5,
-                    -281,
-                    -251,
-                    -190.25,
-                    -176,
-                    -83.6,
-                    -8.8,
+                    -100,
+                    -300,
+                    -200,
+                    -200,
+                    -200,
+                    -100,
+                    -10,
                     0,
                     0
                 ],
                 [
                     0,
                     0,
-                    -51,
-                    -85.5,
-                    -115.3,
-                    -205.78,
-                    -227,
-                    -119.85,
+                    -50,
+                    -100,
+                    -100,
+                    -200,
+                    -250,
+                    -100,
                     0,
                     0
                 ],
                 [
                     0,
-                    -51,
-                    -102,
-                    -115.3,
-                    -205.78,
-                    -227,
-                    -119.85,
-                    12.7,
+                    -50,
+                    -100,
+                    -115,
+                    -200,
+                    -225,
+                    -100,
+                    30,
                     0,
                     0
                 ]
@@ -458,6 +458,7 @@ class Holder extends React.Component {
                     let Opor
                     let Zl
                     let L
+                    let Zr
 
                     let Zakr = this.state.allowed_values[0]
                     let Nakl = this.state.allowed_values[1]
@@ -483,26 +484,31 @@ class Holder extends React.Component {
                     if (scheme === 1) {
                         Kl = l[0] / 2
                         Kr = l[3] / 2 + l[4]
-                        Lzub = l[1] / 2 + l[2] + l[3] + l[4] / 2
                         Zl = l[0] + l[1] / 2
+                        Zr=l[4]/2
+                        Lzub =L-Zl-Zr
+                        //l[1] / 2 + l[2] + l[3] + l[4] / 2
                     }
                     if (scheme === 2) {
                         Kl = l[0] / 2
                         Kr = l[4] / 2
-                        Lzub = l[1] / 2 + l[2] + l[3] / 2
                         Zl = l[0] + l[1] / 2
+                        Zr=l[4]+l[3]/2
+                        Lzub =L-Zl-Zr
                     }
                     if (scheme === 4) {
                         Kl = l[0] + l[1] / 2
                         Kr = l[4] / 2
-                        Lzub = l[0] / 2 + l[1] + l[2] + l[3] / 2
-                        Zl = l[0]
+                        Zl = l[0]/2
+                        Zr=l[4]+l[3]/2
+                        Lzub =L-Zl-Zr
                     }
                     if (scheme === 3) {
                         Kl = l[0] + l[1] / 2
                         Kr = l[4] + l[3] / 2
-                        Lzub = L - l[0] / 2 - l[4] / 2
-                        Zl = l[0]
+                        Zl = l[0]/2
+                        Zr=l[4]/2
+                        Lzub =L-Zl-Zr
                     }
 
                     Opor = L - Kr - Kl
@@ -986,15 +992,19 @@ class Holder extends React.Component {
 
                     let ResZakr
 
-                    if (this.state.scheme === 4) {
-                        ResZakr = 2 * Mx / (2 * G * (I[0] + I[1] + I[2]))*1000
-                    } else if (this.state.scheme === 3) {
-                        ResZakr = 2 * Mx / (2 * G * (I[1] + I[2]))*1000
+                    if (this.state.scheme === 1) {
+                        console.log('КПКП')
+                        ResZakr = (Mx*((l[1]/(4*I[1]))+(l[2]/(2*I[2]))+(l[3]/(2*I[3]))+(l[4]/(4*I[4]))))/(G*(l[1]/2+l[2]+l[3]+l[4]/2))*(180/pi)*1000
+                    } else if (this.state.scheme === 2) {
+                        console.log('КППК')
+                        ResZakr = (Mx*((l[1]/(4*I[1]))+(l[2]/(2*I[2]))+(l[3]/(4*I[3]))))/(G*(l[1]/2+l[2]+l[3]/2))*(180/pi)*1000
                     }
-                    if (this.state.scheme === 2) {
-                        ResZakr = 2 * Mx / (2 * G * (I[0] + I[1] + I[2] + I[3] + I[4]))*1000
-                    } else if (this.state.scheme === 1) {
-                        ResZakr = 4 * Mx / (2 * G * (I[0] + I[1] + I[2] + I[3]))*1000
+                    if (this.state.scheme === 3) {
+                        console.log('ПККП')
+                        ResZakr = (Mx*((l[0]/(4*I[0]))+(l[1]/(2*I[1]))+(l[2]/(2*I[2]))+(l[3]/(2*I[3]))+(l[4]/(4*I[4]))))/(G*(l[0]/2+l[1]+l[2]+l[3]+l[4]/2))*(180/pi)*1000
+                    } else if (this.state.scheme === 4) {
+                        console.log('ПКПК')
+                        ResZakr = (Mx*((l[0]/(4*I[0]))+(l[1]/(2*I[1]))+(l[2]/(2*I[2]))+(l[3]/(4*I[3])))/(G*(l[0]/2+l[1]+l[2]+l[3]/2)))*(180/pi)*1000
                     }
 
                     if (ResZakr < Zakr) {
