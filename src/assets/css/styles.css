@@ -10,6 +10,13 @@ body{
     height:175px !important;
 
 }
+
+.maxi_plot{
+
+    width:600px !important;
+    height:initial !important;
+
+}
 .full_plot{
     margin: 6vh 14vw 7vh 2vw;
 }
@@ -49,6 +56,7 @@ body{
     padding: 5px;
     background: #a4a4a4;
     width: 150px;
+    font-style: italic;
 }
 
 .nav-tabs{
@@ -57,7 +65,7 @@ body{
 }
 
 .h1-h1{
-    margin: 50px 100px 46px 100px !important;
+    margin: 32px 79px 0px 56px !important;
     font-size: 3rem;
 }
 
@@ -165,12 +173,12 @@ body{
 
 .sys-block-5{
     overflow-x: scroll;
-    height: 95vh;
+    height: 90vh;
 }
 
 .logo_v2{
-    width: 82vw;
-    margin: 30px;
+    width: 56vw;
+    margin: 30px 30px 30px 15vw;
 }
 
 .table-check{
@@ -183,3 +191,20 @@ body{
     padding: 18px 10px !important;
 }
 
+.mini-logo{
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.form-check-input {
+    margin-top: .56rem;
+}
+
+.report-parts{
+    margin: 10px;
+    font-size: 1.2rem;
+}
+#copyblock-blocks{
+    width: 1000px;
+}

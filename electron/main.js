@@ -1,9 +1,12 @@
-const {app, BrowserWindow, Menu, ipcMain} = require('electron')
+const {app, BrowserWindow, Menu, ipcMain, dialog,remote} = require('electron')
 const path = require('path')
 const url = require('url')
 const fs = require('fs');
 
+
 let win
+
+let saving_flag=0
 
 const main_menu = [
     {
@@ -16,22 +19,51 @@ const main_menu = [
             { role: 'toggleDevTools' },
             {type: 'separator'},
             {
-                label: 'Сохранить проект как...',
+                label: 'Загрузить проект',
                 click: async () => {
-                    console.log('ass')
-                    win.webContents.send('save_project', 'true')
+                    console.log('[server] Loading project...')
+                    let load = load_project()
+                    win.webContents.send('load_project', load)
+                }
+            },
+            {
+                label: 'Сохранить проект',
+                click: async () => {
+                    console.log('[server] Saving project...')
+                    win.webContents.send('save-project', 'true')
                 }
             },
         ]
     },
     {
-        label: 'Справка',
+        label: 'Инфо',
         submenu: [
             {
-                label: 'Помощь по работе с программой',
+                label: 'Помощь по работе с программой #1',
                 click: async () => {
                     const {shell} = require('electron')
-                    await shell.openExternal('https://www.south32.com/')
+                    await shell.openExternal('https://vk.com/new_spaceman')
+                }
+            },
+            {
+                label: 'Помощь по работе с программой #2',
+                click: async () => {
+                    const {shell} = require('electron')
+                    await shell.openExternal('https://vk.com/id71116600')
+                }
+            },
+            {
+                label: 'Обновления и дргие программы',
+                click: async () => {
+                    const {shell} = require('electron')
+                    await shell.openExternal('https://shaft.rob-o.technology/')
+                }
+            },
+            {
+                label: 'Разработчик',
+                click: async () => {
+                    const {shell} = require('electron')
+                    await shell.openExternal('https://phport.tech?source=shaft')
                 }
             }
         ]
@@ -47,7 +79,7 @@ app.whenReady().then(() => {
         useContentSize: true,
         resizable: false,
         maximizable: false,
-        title: 'Shaft E-edition',
+        title: 'Nice Rod V1.2',
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false
@@ -70,16 +102,30 @@ app.on('window-all-closed', () => {
     app.quit()
 })
 
-ipcMain.on('asynchronous-message', (event, arg) => {
-    const date = new Date();
-    let pref = date.toLocaleDateString();
-    pref=pref.replaceAll('.','_')
-    try {
-        fs.writeFileSync('save_'+pref+'.eeproj', arg, 'utf-8');
-        event.reply('asynchronous-reply', 'saved')
-    } catch (e) {
-        alert('Failed to save the file !');
-        event.reply('asynchronous-reply', 'not saved')
-    }
-    console.log(arg)
+function load_project(){
+    let fileName=dialog.showOpenDialogSync({ properties: ['openFile'] })
+    return fs.readFileSync(fileName[0], 'utf-8');
+}
+
+ipcMain.on('save-recv', (event, arg) => {
+    console.log('save-recv')
+        const date = new Date();
+        let pref = date.toLocaleDateString();
+        pref = pref.replaceAll('.', '_')
+        let fileName=dialog.showSaveDialogSync(win,{
+            title: 'Сохранить файл проекта',
+            defaultPath: 'save_' + pref + '.eeeee',
+            buttonLabel:'Сохранить'
+        })
+        try {
+            fs.writeFileSync(fileName, arg, 'utf-8');
+            //setTimeout(()=>win.webContents.send('save-reply', 'saved'),500)
+        } catch (e) {
+            console.log('Failed to save the file !');
+            //setTimeout(()=>win.webContents.send('save-reply', 'not saved'),500)
+        }
+})
+
+ipcMain.on('test-reply', (event, arg) => {
+    console.log('test-reply')
 })
