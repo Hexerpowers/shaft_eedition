@@ -892,7 +892,7 @@ class Holder extends React.Component {
                         let M = this.state.moments_yz
                         for (let i = 0; i < 4; i++) {
                             for (let j = 2; j < 8; j++) {
-                                if (Math.abs(M[i][j]) < 10) {
+                                if (Math.abs(M[i][j]) < 2) {
                                     Swal.fire(
                                         'Не всё так гладко...',
                                         'Ошибка во вводе изгибающих моментов',
