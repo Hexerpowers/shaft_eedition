@@ -890,9 +890,10 @@ class Holder extends React.Component {
                         let d = this.state.shaft_params[1]
                         let Mx = this.state.moment_x
                         let M = this.state.moments_yz
+                        /*
                         for (let i = 0; i < 4; i++) {
                             for (let j = 2; j < 8; j++) {
-                                if (Math.abs(M[i][j]) < 10) {
+                                if (Math.abs(M[i][j]) < 0) {
                                     Swal.fire(
                                         'Не всё так гладко...',
                                         'Ошибка во вводе изгибающих моментов',
@@ -902,9 +903,11 @@ class Holder extends React.Component {
                                 }
                             }
                         }
+
+                         */
                         for (let i = 0; i < 2; i++) {
                             for (let j = 0; j < 5; j++) {
-                                if(this.state.shaft_params[i][j]<10){
+                                if(this.state.shaft_params[i][j]<2){
                                     Swal.fire(
                                         'Не всё так гладко...',
                                         'Ошибка во вводе параметров вала',
@@ -1697,8 +1700,8 @@ class Holder extends React.Component {
                              aria-labelledby="v-main-tab">
                             <div className="main-tab">
                                 <h1 className="h1-h1 mt-4">
-                                    Добро пожаловать в NiceRod (Shaft V2.0)!</h1>
-                                <img className="logo_v2" src="./resources/img/service/logo_v4.png"/>
+                                    Добро пожаловать в Shaft E-edition!</h1>
+                                <img className="logo_v2" src="./resources/img/service/logo_v3.png"/>
                             </div>
                         </div>
                         <div className="tab-pane fade" id="v-tabs-scheme" role="tabpanel"

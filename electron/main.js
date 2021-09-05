@@ -16,7 +16,7 @@ const main_menu = [
                 role: 'quit',
                 label: 'Выход'
             },
-            { role: 'toggleDevTools' },
+            //{ role: 'toggleDevTools' },
             {type: 'separator'},
             {
                 label: 'Загрузить проект',
