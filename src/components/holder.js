@@ -6,15 +6,15 @@ import $ from 'jquery'
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 import html2canvas from 'html2canvas';
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 
 const ipcRenderer = window.require('electron').ipcRenderer;
 let success = 0
-let plot_Mx
-let plot_My
-let plot_Mz
+let Gplot_Mx
+let Gplot_My
+let Gplot_Mz
 
 
 class Holder extends React.Component {
@@ -31,6 +31,7 @@ class Holder extends React.Component {
         this.load_state = this.load_state.bind(this)
         this.export_report = this.export_report.bind(this)
         this.export_change = this.export_change.bind(this)
+        this.check_for_updates = this.check_for_updates.bind(this)
         this.state = {
             phrases: [
                 'Что делает чукча первым делом, когда приходит домой?',
@@ -45,7 +46,7 @@ class Holder extends React.Component {
                 'Пешим по танковому',
                 'Сосиски - это настоящий сосуд высокого давления',
                 'В человеке все должно быть прекрасно',
-                'Концы в вводу, или как говорили в девяностые - положить кабанчика на рельс',
+                'Концы в вводу, или как говорили в девяностые - положить кабанчика на рельс...',
                 'Господа... Назревает научный спор',
                 'Вот.'
             ],
@@ -181,7 +182,7 @@ class Holder extends React.Component {
             ],
             resilience_modulus: [200, 80],
             calculated: "disabled",
-            calc_state:0,
+            calc_state: 0,
             real_values: [
                 1,
                 1,
@@ -204,8 +205,8 @@ class Holder extends React.Component {
             ],
             try_n: 0,
             loading: 0,
-            current_phrase:'',
-            export_parts:[
+            current_phrase: '',
+            export_parts: [
                 0,
                 0,
                 0,
@@ -219,7 +220,7 @@ class Holder extends React.Component {
         let ctx_x = document.getElementById('plot_Mx').getContext('2d');
         let ctx_y = document.getElementById('plot_My').getContext('2d');
         let ctx_z = document.getElementById('plot_Mz').getContext('2d');
-        plot_Mx = new Chart(ctx_x, {
+        this.plot_Mx = new Chart(ctx_x, {
             type: 'scatter',
             data: {
                 datasets: [{
@@ -301,7 +302,6 @@ class Holder extends React.Component {
                 showLine: true,
                 scales: {
                     y: {
-                        //min: 0,
                         suggestedMax: 1
                     },
                     x: {
@@ -316,7 +316,7 @@ class Holder extends React.Component {
                 }
             }
         });
-        plot_My = new Chart(ctx_y, {
+        this.plot_My = new Chart(ctx_y, {
             type: 'scatter',
             data: {
                 datasets: [{
@@ -409,7 +409,7 @@ class Holder extends React.Component {
                 }
             }
         });
-        plot_Mz = new Chart(ctx_z, {
+        this.plot_Mz = new Chart(ctx_z, {
             type: 'scatter',
             data: {
                 datasets: [{
@@ -517,8 +517,8 @@ class Holder extends React.Component {
                     }
 
                     //Момент Mz
-                    plot_Mz.data.datasets[0].data[y * 2 + x_1 + 1].y = Number(this.state.moments_yz[j][i]);
-                    plot_Mz.update();
+                    this.plot_Mz.data.datasets[0].data[y * 2 + x_1 + 1].y = Number(this.state.moments_yz[j][i]);
+                    this.plot_Mz.update();
                 } else {
                     if (x === 0) {
                         x_1 = 0
@@ -526,18 +526,18 @@ class Holder extends React.Component {
                         x_1 = 1;
                     }
                     //Момент My
-                    plot_My.data.datasets[0].data[y * 2 + x_1 + 1].y = Number(this.state.moments_yz[j][i]);
-                    plot_My.update();
+                    this.plot_My.data.datasets[0].data[y * 2 + x_1 + 1].y = Number(this.state.moments_yz[j][i]);
+                    this.plot_My.update();
                 }
             }
 
         }
         for (let i = this.state.slices[2] * 2 - 1; i < this.state.slices[3] * 2 - 1; i++) {
-            plot_Mx.data.datasets[0].data[i].y = Number(this.state.moment_x);
+            this.plot_Mx.data.datasets[0].data[i].y = Number(this.state.moment_x);
         }
-        plot_Mx.update();
-        plot_My.update();
-        plot_Mz.update();
+        this.plot_Mx.update();
+        this.plot_My.update();
+        this.plot_Mz.update();
         ipcRenderer.on('save-project', () => {
             //console.log('[client]: Saving state')
             let reply = this.save_state()
@@ -567,12 +567,13 @@ class Holder extends React.Component {
                 )
                 return
             }
-            this.load_state(message)
+            this.load_state(message,this.plot_Mx,this.plot_My,this.plot_Mz)
         })
         for (let i = 0; i < 5; i++) {
-            $('#al-in-'+i).val(this.state.allowed_values[i])
+            $('#al-in-' + i).val(this.state.allowed_values[i])
         }
-        this.setState({current_phrase: this.state.phrases[Math.floor(Math.random( ) * (14+1))]});
+        this.setState({current_phrase: this.state.phrases[Math.floor(Math.random() * (14 + 1))]});
+        this.check_for_updates()
     }
 
     componentWillUnmount() {
@@ -583,7 +584,31 @@ class Holder extends React.Component {
         return (JSON.stringify(this.state))
     }
 
-    load_state(mes) {
+    check_for_updates(){
+        $.ajax({
+            url: 'https://rob-o.technology/val/updates/cfu',
+            success: function(data){
+                try {
+                    let ret = JSON.parse(data);
+                    if(ret['updates']>167){
+                        Swal.fire(
+                            'Доступно обновление программы',
+                            'По ссылке' +
+                            '<br><a href="https://rob-o.technology/val/updates/">https://rob-o.technology/val/updates/</a>',
+                            'question'
+                        )
+                    }
+                } catch (err) {
+                    console.log('Не удалось проверить наличие обновлений...')
+                }
+            }
+        });
+    }
+
+    load_state(mes,px,py,pz) {
+        this.plot_Mx=px
+        this.plot_My=py
+        this.plot_Mz=pz
         let n_state = JSON.parse(mes)
         this.setState(n_state)
         this.setState({try_n: 0});
@@ -602,8 +627,8 @@ class Holder extends React.Component {
                     }
 
                     //Момент Mz
-                    plot_Mz.data.datasets[0].data[y * 2 + x_1 + 1].y = Number(this.state.moments_yz[j][i]);
-                    plot_Mz.update();
+                    this.plot_Mz.data.datasets[0].data[y * 2 + x_1 + 1].y = Number(this.state.moments_yz[j][i]);
+                    this.plot_Mz.update();
                 } else {
                     if (x === 0) {
                         x_1 = 0
@@ -611,22 +636,22 @@ class Holder extends React.Component {
                         x_1 = 1;
                     }
                     //Момент My
-                    plot_My.data.datasets[0].data[y * 2 + x_1 + 1].y = Number(this.state.moments_yz[j][i]);
-                    plot_My.update();
+                    this.plot_My.data.datasets[0].data[y * 2 + x_1 + 1].y = Number(this.state.moments_yz[j][i]);
+                    this.plot_My.update();
                 }
             }
 
         }
         for (let i = this.state.slices[2] * 2 - 1; i < this.state.slices[3] * 2 - 1; i++) {
-            plot_Mx.data.datasets[0].data[i].y = Number(this.state.moment_x);
+            this.plot_Mx.data.datasets[0].data[i].y = Number(this.state.moment_x);
         }
-        plot_Mx.update();
-        plot_My.update();
-        plot_Mz.update();
+        this.plot_Mx.update();
+        this.plot_My.update();
+        this.plot_Mz.update();
 
         for (let i = 0; i < 9; i++) {
             for (let j = 0; j < 4; j++) {
-                if(this.state.moments_yz[j][i]!==0) {
+                if (this.state.moments_yz[j][i] !== 0) {
                     $('#mm-in-' + j + '_' + i).val(this.state.moments_yz[j][i])
                 }
             }
@@ -634,24 +659,23 @@ class Holder extends React.Component {
 
         for (let i = 0; i < 2; i++) {
             for (let j = 0; j < 5; j++) {
-                $('#sh-in-'+i+'_'+j).val(this.state.shaft_params[i][j])
+                $('#sh-in-' + i + '_' + j).val(this.state.shaft_params[i][j])
             }
         }
 
         for (let i = 0; i < 5; i++) {
-            $('#al-in-'+i).val(this.state.allowed_values[i])
+            $('#al-in-' + i).val(this.state.allowed_values[i])
         }
 
         for (let i = 0; i < 2; i++) {
-            $('#re-in-'+i).val(this.state.resilience_modulus[i])
+            $('#re-in-' + i).val(this.state.resilience_modulus[i])
         }
 
         $('#mx-in').val(this.state.moment_x)
 
-        if(this.state.calc_state===1) {
+        if (this.state.calc_state === 1) {
             this.calculate()
         }
-
     }
 
     export_report() {
@@ -664,196 +688,196 @@ class Holder extends React.Component {
                 Swal.showLoading()
                 try {
                     setTimeout(() => {
-        let copyblock_1=document.getElementById('v-tabs-scheme').cloneNode(true)
-        copyblock_1.id='copyblock_1'
-        copyblock_1.firstChild.firstChild.firstChild.firstChild.childNodes[1].style.background='none'
-        copyblock_1.classList.add("show", "active");
-        document.body.appendChild(copyblock_1)
-        html2canvas(document.getElementById('copyblock_1')).then(function(canvas) {
-            document.getElementById('copyblock-holder').appendChild(canvas);
-        });
+                        let copyblock_1 = document.getElementById('v-tabs-scheme').cloneNode(true)
+                        copyblock_1.id = 'copyblock_1'
+                        copyblock_1.firstChild.firstChild.firstChild.firstChild.childNodes[1].style.background = 'none'
+                        copyblock_1.classList.add("show", "active");
+                        document.body.appendChild(copyblock_1)
+                        html2canvas(document.getElementById('copyblock_1')).then(function (canvas) {
+                            document.getElementById('copyblock-holder').appendChild(canvas);
+                        });
 
-        let copyblock_2=document.getElementById('v-tabs-moment').cloneNode(true)
-        copyblock_2.id='copyblock_2'
-        copyblock_2.classList.add("show", "active");
-        document.body.appendChild(copyblock_2)
-        html2canvas(document.getElementById('copyblock_2')).then(function(canvas) {
-            document.getElementById('copyblock-holder').appendChild(canvas);
-        });
+                        let copyblock_2 = document.getElementById('v-tabs-moment').cloneNode(true)
+                        copyblock_2.id = 'copyblock_2'
+                        copyblock_2.classList.add("show", "active");
+                        document.body.appendChild(copyblock_2)
+                        html2canvas(document.getElementById('copyblock_2')).then(function (canvas) {
+                            document.getElementById('copyblock-holder').appendChild(canvas);
+                        });
 
-        let copyblock_3=document.getElementById('v-tabs-const').cloneNode(true)
-        copyblock_3.id='copyblock_3'
-        copyblock_3.style.width='700px'
-        copyblock_3.classList.add("show", "active");
-        document.body.appendChild(copyblock_3)
-        html2canvas(document.getElementById('copyblock_3')).then(function(canvas) {
-            document.getElementById('copyblock-holder').appendChild(canvas);
-        });
+                        let copyblock_3 = document.getElementById('v-tabs-const').cloneNode(true)
+                        copyblock_3.id = 'copyblock_3'
+                        copyblock_3.style.width = '700px'
+                        copyblock_3.classList.add("show", "active");
+                        document.body.appendChild(copyblock_3)
+                        html2canvas(document.getElementById('copyblock_3')).then(function (canvas) {
+                            document.getElementById('copyblock-holder').appendChild(canvas);
+                        });
 
-        let copyblock_4=document.getElementById('v-tabs-check').cloneNode(true)
-        copyblock_4.id='copyblock_4'
-        copyblock_4.style.width='1000px'
-        copyblock_4.classList.add("show", "active");
-        document.body.appendChild(copyblock_4)
-        html2canvas(document.getElementById('copyblock_4')).then(function(canvas) {
-            document.getElementById('copyblock-holder').appendChild(canvas);
-        });
+                        let copyblock_4 = document.getElementById('v-tabs-check').cloneNode(true)
+                        copyblock_4.id = 'copyblock_4'
+                        copyblock_4.style.width = '1000px'
+                        copyblock_4.classList.add("show", "active");
+                        document.body.appendChild(copyblock_4)
+                        html2canvas(document.getElementById('copyblock_4')).then(function (canvas) {
+                            document.getElementById('copyblock-holder').appendChild(canvas);
+                        });
 
-        setTimeout(()=>{
-            let url1 = document.getElementById('copyblock-holder').childNodes[2].toDataURL("image/jpeg")
-            let url2 = document.getElementById('copyblock-holder').childNodes[3].toDataURL("image/jpeg")
-            let url3 = document.getElementById('copyblock-holder').childNodes[0].toDataURL("image/jpeg")
-            let url4 = document.getElementById('copyblock-holder').childNodes[1].toDataURL("image/jpeg")
+                        setTimeout(() => {
+                            let url1 = document.getElementById('copyblock-holder').childNodes[2].toDataURL("image/jpeg")
+                            let url2 = document.getElementById('copyblock-holder').childNodes[3].toDataURL("image/jpeg")
+                            let url3 = document.getElementById('copyblock-holder').childNodes[0].toDataURL("image/jpeg")
+                            let url4 = document.getElementById('copyblock-holder').childNodes[1].toDataURL("image/jpeg")
 
-            let url5 = document.getElementById('plot_Mx').toDataURL("image/png",1)
-            let url6 = document.getElementById('plot_My').toDataURL("image/png",1)
-            let url7 = document.getElementById('plot_Mz').toDataURL("image/png",1)
+                            let url5 = document.getElementById('plot_Mx').toDataURL("image/png",1)
+                            let url6 = document.getElementById('plot_My').toDataURL("image/png",1)
+                            let url7 = document.getElementById('plot_Mz').toDataURL("image/png",1)
 
-            let url8 = document.getElementById('plot_Oy').toDataURL("image/png",1)
-            let url9 = document.getElementById('plot_Oz').toDataURL("image/png",1)
-            let url10 = document.getElementById('plot_W').toDataURL("image/png",1)
-            let url11 = document.getElementById('plot_V').toDataURL("image/png",1)
-            let docInfo = {
-                info: {
-                    title: 'Отчёт о работе программы NiceRod (v1.2.2)',
-                    author: 'Artyom',
-                    subject: 'Report',
-                    keywords: 'no'
-                },
-                pageSize: 'A4',
-                pageOrientation: 'portrait',
-                pageMargins: [50, 50, 30, 60],
-                content: [
-                    {
-                        text:'Расчёт вала на прочность и жёсткость',
-                        alignment:'center',
-                        fontSize:20,
-                    },
-                    {
-                        text:'Параметры ступенчатого вала',
-                        alignment:'center',
-                        fontSize:15,
-                        margin:[0,30,0,10]
-                    },
-                    {
-                        image: url1,
-                        width: 600,
-                    },
-                    {
-                        text:'Изгибающие моменты и продольный момент',
-                        alignment:'center',
-                        fontSize:15,
-                        margin:[0,20,0,10]
-                    },
-                    {
-                        image: url2,
-                        width: 600,
-                    },
-                    {
-                        text:'Введённые константы',
-                        alignment:'center',
-                        fontSize:15,
-                        margin:[0,20,0,10]
-                    },
-                    {
-                        image: url3,
-                        width: 400,
-                        alignment:'center',
-                    },
-                    {
-                        text:'Результаты проверки вала',
-                        alignment:'center',
-                        fontSize:15,
-                        margin:[0,20,0,10]
-                    },
-                    {
-                        image: url4,
-                        width: 500,
-                        alignment:'center',
-                    },
-                    {
-                        text:'Эпюра момента Mx',
-                        alignment:'center',
-                        fontSize:15,
-                        margin:[0,120,0,10]
-                    },
-                    {
-                        image: url5,
-                        width: 350,
-                        alignment:'center',
-                    },
-                    {
-                        text:'Эпюра момента My',
-                        alignment:'center',
-                        fontSize:15,
-                        margin:[0,20,0,10]
-                    },
-                    {
-                        image: url6,
-                        width: 350,
-                        alignment:'center',
-                    },
-                    {
-                        text:'Эпюра момента Mz',
-                        alignment:'center',
-                        fontSize:15,
-                        margin:[0,20,0,10]
-                    },
-                    {
-                        image: url7,
-                        width: 350,
-                        alignment:'center',
-                    },
+                            let url8 = document.getElementById('plot_Oy').toDataURL("image/png",1)
+                            let url9 = document.getElementById('plot_Oz').toDataURL("image/png",1)
+                            let url10 = document.getElementById('plot_W').toDataURL("image/png",1)
+                            let url11 = document.getElementById('plot_V').toDataURL("image/png",1)
+                            let docInfo = {
+                                info: {
+                                    title: 'Отчёт о работе программы VAL (v1.5.2)',
+                                    author: 'User',
+                                    subject: 'Report',
+                                    keywords: 'no'
+                                },
+                                pageSize: 'A4',
+                                pageOrientation: 'portrait',
+                                pageMargins: [50, 50, 30, 60],
+                                content: [
+                                    {
+                                        text:'Расчёт вала на прочность и жёсткость',
+                                        alignment:'center',
+                                        fontSize:20,
+                                    },
+                                    {
+                                        text:'Параметры ступенчатого вала',
+                                        alignment:'center',
+                                        fontSize:15,
+                                        margin:[0,30,0,10]
+                                    },
+                                    {
+                                        image: url1,
+                                        width: 600,
+                                    },
+                                    {
+                                        text:'Изгибающие моменты и продольный момент',
+                                        alignment:'center',
+                                        fontSize:15,
+                                        margin:[0,20,0,10]
+                                    },
+                                    {
+                                        image: url2,
+                                        width: 600,
+                                    },
+                                    {
+                                        text:'Введённые константы',
+                                        alignment:'center',
+                                        fontSize:15,
+                                        margin:[0,20,0,10]
+                                    },
+                                    {
+                                        image: url3,
+                                        width: 400,
+                                        alignment:'center',
+                                    },
+                                    {
+                                        text:'Результаты проверки вала',
+                                        alignment:'center',
+                                        fontSize:15,
+                                        margin:[0,20,0,10]
+                                    },
+                                    {
+                                        image: url4,
+                                        width: 500,
+                                        alignment:'center',
+                                    },
+                                    {
+                                        text:'Эпюра момента Mx',
+                                        alignment:'center',
+                                        fontSize:15,
+                                        margin:[0,120,0,10]
+                                    },
+                                    {
+                                        image: url5,
+                                        width: 350,
+                                        alignment:'center',
+                                    },
+                                    {
+                                        text:'Эпюра момента My',
+                                        alignment:'center',
+                                        fontSize:15,
+                                        margin:[0,20,0,10]
+                                    },
+                                    {
+                                        image: url6,
+                                        width: 350,
+                                        alignment:'center',
+                                    },
+                                    {
+                                        text:'Эпюра момента Mz',
+                                        alignment:'center',
+                                        fontSize:15,
+                                        margin:[0,20,0,10]
+                                    },
+                                    {
+                                        image: url7,
+                                        width: 350,
+                                        alignment:'center',
+                                    },
 
-                    {
-                        text:'Изгибный поворот Oy',
-                        alignment:'center',
-                        fontSize:15,
-                        margin:[0,50,0,10]
-                    },
-                    {
-                        image: url8,
-                        width: 500,
-                        alignment:'center',
-                    },
-                    {
-                        text:'Изгибный поворот Oz',
-                        alignment:'center',
-                        fontSize:15,
-                        margin:[0,20,0,10]
-                    },
-                    {
-                        image: url9,
-                        width: 500,
-                        alignment:'center',
-                    },
-                    {
-                        text:'Линейное перемещение сечений W',
-                        alignment:'center',
-                        fontSize:15,
-                        margin:[0,140,0,10]
-                    },
-                    {
-                        image: url10,
-                        width: 500,
-                        alignment:'center',
-                    },
-                    {
-                        text:'Линейное перемещение сечений V',
-                        alignment:'center',
-                        fontSize:15,
-                        margin:[0,20,0,10]
-                    },
-                    {
-                        image: url11,
-                        width: 500,
-                        alignment:'center',
-                    },
+                                    {
+                                        text:'Изгибный поворот Oy',
+                                        alignment:'center',
+                                        fontSize:15,
+                                        margin:[0,50,0,10]
+                                    },
+                                    {
+                                        image: url8,
+                                        width: 500,
+                                        alignment:'center',
+                                    },
+                                    {
+                                        text:'Изгибный поворот Oz',
+                                        alignment:'center',
+                                        fontSize:15,
+                                        margin:[0,20,0,10]
+                                    },
+                                    {
+                                        image: url9,
+                                        width: 500,
+                                        alignment:'center',
+                                    },
+                                    {
+                                        text:'Линейное перемещение сечений W',
+                                        alignment:'center',
+                                        fontSize:15,
+                                        margin:[0,140,0,10]
+                                    },
+                                    {
+                                        image: url10,
+                                        width: 500,
+                                        alignment:'center',
+                                    },
+                                    {
+                                        text:'Линейное перемещение сечений V',
+                                        alignment:'center',
+                                        fontSize:15,
+                                        margin:[0,20,0,10]
+                                    },
+                                    {
+                                        image: url11,
+                                        width: 500,
+                                        alignment:'center',
+                                    },
 
-                ],
-            }
-            pdfMake.createPdf(docInfo).download('report.pdf');
-        },1000)
+                                ],
+                            }
+                            pdfMake.createPdf(docInfo).download('report.pdf');
+                        }, 1000)
 
                     }, 2000);
                 } catch (e) {
@@ -866,7 +890,7 @@ class Holder extends React.Component {
         }).then((result) => {
             Swal.fire(
                 'Готово!',
-                'Результаты доступны в том файле, куда вы сохранили отчёт',
+                'Результаты доступны в том файле, куда вы сохранили отчёт.',
                 'success'
             )
         })
@@ -907,7 +931,7 @@ class Holder extends React.Component {
                          */
                         for (let i = 0; i < 2; i++) {
                             for (let j = 0; j < 5; j++) {
-                                if(this.state.shaft_params[i][j]<2){
+                                if (this.state.shaft_params[i][j] < 2) {
                                     Swal.fire(
                                         'Не всё так гладко...',
                                         'Ошибка во вводе параметров вала',
@@ -917,7 +941,7 @@ class Holder extends React.Component {
                                 }
                             }
                         }
-                        if(Math.abs(Mx)<1){
+                        if (Math.abs(Mx) < 1) {
                             Swal.fire(
                                 'Не всё так гладко...',
                                 'Ошибка во вводе закручивающего момента',
@@ -1172,6 +1196,7 @@ class Holder extends React.Component {
                         let Is_w = 0
                         let Is_v = 0
                         let steps = gen_L()
+                        console.log(steps)
 
                         for (let z = 0; z < steps.length; z++) {
                             Is_oy = 0
@@ -1204,6 +1229,8 @@ class Holder extends React.Component {
                         W_1 = transpose(W_1)
                         let V_1 = [steps, V]
                         V_1 = transpose(V_1)
+                        console.log(Oy_1)
+                        console.log(W_1)
 
 
                         let Oy_max = Math.max(...Oy).toFixed(2)
@@ -1232,7 +1259,7 @@ class Holder extends React.Component {
                                 borderJoinStyle: 'round',
                                 borderCapStyle: 'round',
                                 pointRadius: 0,
-                                responsive: true,
+                                responsive: false,
                                 maintainAspectRatio: true,
                                 animations: false,
                                 transitions: {
@@ -1246,13 +1273,14 @@ class Holder extends React.Component {
                                 scales: {
                                     x: {
                                         min: 0,
+                                        max: L,
                                         ticks: {
                                             stepSize: 50
                                         }
                                     },
                                     y: {
-                                        min: Oy_min * 1.3,
-                                        max: Oy_max * 1.3
+                                        min: Oy_min * 1.5,
+                                        max: Oy_max * 2.5
                                     }
                                 }
                             }
@@ -1287,13 +1315,14 @@ class Holder extends React.Component {
                                 scales: {
                                     x: {
                                         min: 0,
+                                        max: L,
                                         ticks: {
                                             stepSize: 50
                                         }
                                     },
                                     y: {
-                                        min: Oz_min * 1.3,
-                                        max: Oz_max * 1.3
+                                        min: Oz_min * 1.5,
+                                        max: Oz_max * 2.5
                                     }
                                 }
                             }
@@ -1334,8 +1363,8 @@ class Holder extends React.Component {
                                         },
                                     },
                                     y: {
-                                        min: W_min * 1.3,
-                                        max: W_max * 1.3
+                                        min: W_min * 2.5,
+                                        max: W_max * 2.5
                                     }
                                 }
 
@@ -1377,8 +1406,8 @@ class Holder extends React.Component {
                                         },
                                     },
                                     y: {
-                                        min: V_min * 1.3,
-                                        max: V_max * 1.3
+                                        min: V_min * 2.5,
+                                        max: V_max * 2.5
                                     }
                                 }
                             }
@@ -1599,16 +1628,16 @@ class Holder extends React.Component {
             } else {
                 x_1 = 1;
             }
-            plot_Mz.data.datasets[0].data[y * 2 + x_1 + 1].y = Number(event.target.value);
-            plot_Mz.update();
+            this.plot_Mz.data.datasets[0].data[y * 2 + x_1 + 1].y = Number(event.target.value);
+            this.plot_Mz.update();
         } else {
             if (x === 0) {
                 x_1 = 0
             } else {
                 x_1 = 1;
             }
-            plot_My.data.datasets[0].data[y * 2 + x_1 + 1].y = Number(event.target.value);
-            plot_My.update();
+            this.plot_My.data.datasets[0].data[y * 2 + x_1 + 1].y = Number(event.target.value);
+            this.plot_My.update();
         }
         this.setState({moments_yz: t_m_yz});
     }
@@ -1616,9 +1645,9 @@ class Holder extends React.Component {
     moment_x_change(event) {
         this.setState({moment_x: Number(event.target.value)});
         for (let i = this.state.slices[2] * 2 - 1; i < this.state.slices[3] * 2 - 1; i++) {
-            plot_Mx.data.datasets[0].data[i].y = Number(event.target.value);
+            this.plot_Mx.data.datasets[0].data[i].y = Number(event.target.value);
         }
-        plot_Mx.update();
+        this.plot_Mx.update();
     }
 
     allowed_change(event, x) {
@@ -1652,11 +1681,11 @@ class Holder extends React.Component {
         }
     }
 
-    export_change(event,x){
+    export_change(event, x) {
         let t_ex = this.state.export_parts
-        if(t_ex[x]===0){
+        if (t_ex[x] === 0) {
             t_ex[x] = 1
-        }else{
+        } else {
             t_ex[x] = 0
         }
         this.setState({export_parts: t_ex});
@@ -1700,8 +1729,8 @@ class Holder extends React.Component {
                              aria-labelledby="v-main-tab">
                             <div className="main-tab">
                                 <h1 className="h1-h1 mt-4">
-                                    Добро пожаловать в Shaft E-edition!</h1>
-                                <img className="logo_v2" src="./resources/img/service/logo_v3.png"/>
+                                    Добро пожаловать в VAL!</h1>
+                                <img className="logo_v2" src="./resources/img/service/logo_v5.png"/>
                             </div>
                         </div>
                         <div className="tab-pane fade" id="v-tabs-scheme" role="tabpanel"
@@ -2402,11 +2431,11 @@ class Holder extends React.Component {
                                 <h2 className="h2-h2 mt-0 mb-2">
                                     10. Экспорт отчёта
                                 </h2>
-                                <div className="report-parts" style={{display:'none'}}>
+                                <div className="report-parts" style={{display: 'none'}}>
                                     <div className="form-check">
                                         <input onChange={(event) => this.export_change(event, 0)}
                                                type="checkbox" className="form-check-input" id="entries"/>
-                                            <label className="form-check-label" htmlFor="entries">Вводные данные</label>
+                                        <label className="form-check-label" htmlFor="entries">Вводные данные</label>
                                     </div>
                                     <div className="form-check">
                                         <input onChange={(event) => this.export_change(event, 1)}

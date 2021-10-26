@@ -65,7 +65,10 @@ body{
 }
 
 .h1-h1{
-    margin: 32px 79px 0px 56px !important;
+    margin-top: 32px !important;
+    margin-right: 200px !important;
+    margin-left: 250px !important;
+    margin-bottom: 0px !important;
     font-size: 3rem;
 }
 
@@ -177,8 +180,11 @@ body{
 }
 
 .logo_v2{
-    width: 56vw;
-    margin: 30px 30px 30px 15vw;
+    width: 90vw;
+    margin-top: 0px;
+    margin-right: 10px;
+    margin-left: 0vw;
+    margin-bottom: 30px;
 }
 
 .table-check{

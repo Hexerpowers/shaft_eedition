@@ -1,8 +1,8 @@
 {
   "name": "shaft",
-  "version": "0.3.0",
+  "version": "1.6.7",
   "main": "electron/main.js",
-  "productName": "Shaft E-edition",
+  "productName": "VAL",
   "author": {
     "name": "Акжигитов Артём",
     "email": "info@phport.tech",
@@ -68,7 +68,7 @@
     },
     "win": {
       "target": "portable",
-      "icon": "build/icon.ico"
+      "icon": "build/logo.png"
     }
   }
 }

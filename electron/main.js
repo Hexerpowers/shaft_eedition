@@ -56,7 +56,7 @@ const main_menu = [
                 label: 'Обновления и дргие программы',
                 click: async () => {
                     const {shell} = require('electron')
-                    await shell.openExternal('https://shaft.rob-o.technology/')
+                    await shell.openExternal('https://rob-o.technology/?source=val')
                 }
             },
             {
@@ -79,11 +79,13 @@ app.whenReady().then(() => {
         useContentSize: true,
         resizable: false,
         maximizable: false,
-        title: 'Nice Rod V1.2',
+        title: 'VAL V1.6.7',
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false
-        }
+            contextIsolation: false,
+            webSecurity: false
+        },
+        icon:'assets/img/logo.png'
     })
     const startUrl = process.env.ELECTRON_START_URL || url.format({
         pathname: path.join(__dirname, '../index.html'),
@@ -119,10 +121,10 @@ ipcMain.on('save-recv', (event, arg) => {
         })
         try {
             fs.writeFileSync(fileName, arg, 'utf-8');
-            //setTimeout(()=>win.webContents.send('save-reply', 'saved'),500)
+            setTimeout(()=>win.webContents.send('save-reply', 'saved'),500)
         } catch (e) {
             console.log('Failed to save the file !');
-            //setTimeout(()=>win.webContents.send('save-reply', 'not saved'),500)
+            setTimeout(()=>win.webContents.send('save-reply', 'not saved'),500)
         }
 })
 
